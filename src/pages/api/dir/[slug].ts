@@ -61,14 +61,27 @@ export default async function slug(
     const files = await fs.promises.readdir(resolved);
     const entries: Array<FileEntry> = [];
     const parent = path.relative(root, resolved);
+    let fileCount = 0;
+    let folderCount = 0;
     for (const file of files) {
       const absolutePath = path.normalize(path.resolve(root, resolved, file));
       const relativePath = path.relative(root, path.join(resolved, file));
       const name = path.basename(absolutePath);
       try {
         const fileStat = await fs.promises.lstat(absolutePath);
+        if (
+          fileStat.isFIFO() ||
+          fileStat.isSocket() ||
+          fileStat.isCharacterDevice() ||
+          fileStat.isSymbolicLink()
+        ) {
+          continue;
+        }
         const isDir = fileStat.isDirectory();
         const isSymLink = fileStat.isSymbolicLink();
+        if (fileStat.isFile()) fileCount++;
+        if (fileStat.isDirectory()) folderCount++;
+
         if (fileStat.isFile() || fileStat.isDirectory()) {
           const href = fileStat.isDirectory()
             ? relativePath
@@ -105,10 +118,24 @@ export default async function slug(
         return acc;
       }, new Array<Breadcrumb>());
 
+    const possibleParentPath =
+      path.relative(root, path.dirname(resolved)) || "/";
+    const parentPath =
+      possibleParentPath !== path.dirname(root)
+        ? possibleParentPath
+        : undefined;
+    const currentPath = path.relative(root, resolved);
+
     const responseBody: DirApiResponse = {
       breadcrumbs,
-      path: resolved,
+      parentPath,
+      path: currentPath,
       entries: orderedEntries,
+      stats: {
+        totalCount: orderedEntries.length,
+        fileCount,
+        folderCount,
+      },
     };
     orderedEntries.unshift({
       parent: path.dirname(path.dirname(parent)),
