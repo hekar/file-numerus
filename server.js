@@ -39,7 +39,7 @@ app.prepare().then(() => {
     const parsedUrl = parse(req.url, true);
     const { pathname, query } = parsedUrl;
     handle(req, res, parsedUrl);
-  }).listen(3000, (err) => {
+  }).listen(argv.port, '0.0.0.0', (err) => {
     if (err) throw err;
     console.log("> Ready on http://localhost:3000");
   });
