@@ -1,4 +1,4 @@
-import { Box, Stack, Stat, StatLabel, StatNumber } from "@chakra-ui/react";
+import { Stack } from "@chakra-ui/react";
 import React from "react";
 import { FileEntryListStats } from "../model/file-entry-list-stats";
 import FileListStatItem from "./FileListStatItem";

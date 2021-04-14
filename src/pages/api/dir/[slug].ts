@@ -4,7 +4,8 @@ import { NextApiRequest, NextApiResponse } from "next";
 import getConfig from "next/config";
 import { orderBy } from "natural-orderby";
 import { FileEntry } from "../../../model/file-entry";
-import { Breadcrumb, DirApiResponse } from "../../../model/dir-api-response";
+import { Breadcrumb } from "../../../model/breadcrumb";
+import { DirApiResponse } from "../../../model/dir-api-response";
 
 const { serverRuntimeConfig } = getConfig();
 const { directory } = serverRuntimeConfig;
