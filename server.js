@@ -10,6 +10,7 @@ const argv = yargs(process.argv.slice(2))
   .env("FILE_NUMERUS")
   .options({
     directory: { type: "string", alias: "d", alias: "dir", default: "." },
+    host: { type: "string", alias: "h", default: "0.0.0.0" },
     port: { type: "number", alias: "p", default: 8081 },
     verbose: { type: "boolean", alias: "v", default: false },
     quiet: { type: "boolean", alias: "q", default: false },
@@ -39,8 +40,8 @@ app.prepare().then(() => {
     const parsedUrl = parse(req.url, true);
     const { pathname, query } = parsedUrl;
     handle(req, res, parsedUrl);
-  }).listen(argv.port, '0.0.0.0', (err) => {
+  }).listen(argv.port, argv.host, (err) => {
     if (err) throw err;
-    console.log("> Ready on http://localhost:3000");
+    console.log(`> Ready on http://${host}:${port}`);
   });
 });

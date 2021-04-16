@@ -1,10 +1,14 @@
 {
-  "name": "with-chakra-ui-typescript",
-  "version": "1.0.0",
+  "name": "file-numerus",
+  "version": "0.1.0",
+  "bin": {
+    "file-numerus": "bin/file-numerus"
+  },
   "scripts": {
     "dev": "next",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "test": "jest"
   },
   "dependencies": {
     "@chakra-ui/icons": "^1.0.9",
@@ -23,12 +27,23 @@
     "yargs": "^16.2.0"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^5.11.10",
+    "@testing-library/react": "^11.2.6",
     "@types/node": "^14.6.0",
     "@types/react": "^16.9.46",
-    "@types/react-dom": "^16.9.8",
     "@types/react-copy-to-clipboard": "^5.0.0",
+    "@types/react-dom": "^16.9.8",
+    "babel-jest": "^26.6.3",
+    "jest": "^26.6.3",
+    "jest-watch-typeahead": "^0.6.1",
     "prettier": "^2.2.1",
+    "ts-node": "^9.1.1",
     "typescript": "4.0.5"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "files": [
+    "server.js",
+    "/.next",
+    "/bin"
+  ]
 }
