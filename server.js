@@ -36,12 +36,15 @@ const app = next({
 const handle = app.getRequestHandler();
 
 app.prepare().then(() => {
-  createServer((req, res) => {
+  const server = createServer((req, res) => {
     const parsedUrl = parse(req.url, true);
     const { pathname, query } = parsedUrl;
     handle(req, res, parsedUrl);
-  }).listen(argv.port, argv.host, (err) => {
+  });
+
+  server.listen(argv.port, argv.host, (err) => {
     if (err) throw err;
-    console.log(`> Ready on http://${host}:${port}`);
+    const address = server.address();
+    console.log(`> Ready on http://${address.address}:${address.port}`);
   });
 });
