@@ -15,13 +15,13 @@ export default function FileEntryActions({
   if (entry.name === "." || entry.name === "..") {
     return <Box width="2.5rem"></Box>;
   } else if (entry.isDir) {
-    return <MinusIcon width="2.5rem" />;
+    return <MinusIcon paddingTop="0.5rem" width="2.5rem" />;
   } else {
     return (
       <CopyToClipboard text={url.toString()}>
         <IconButton
           padding="0.5rem"
-          height="0.5rem"
+          height="1.45rem"
           background="none"
           aria-label="copy url to file"
           icon={<CopyIcon />}
