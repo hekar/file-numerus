@@ -1,27 +1,91 @@
-# Example app with [chakra-ui](https://github.com/chakra-ui/chakra-ui) and Typescript
+# File Numerus
 
-This example features how to use [chakra-ui](https://github.com/chakra-ui/chakra-ui) as the component library within a Next.js app with typescript.
+File Numerus. Simple. Read-only. HTTP file browser.
 
-Next.js and chakra-ui have built-in TypeScript declarations, so we'll get autocompletion for their modules straight away.
+The good 'old days of listing file directories for download. Easy to use. Responsive. Made for modern browsers.
 
-We are connecting the Next.js `_app.js` with `chakra-ui`'s Provider and theme so the pages can have app-wide dark/light mode. We are also creating some components which shows the usage of `chakra-ui`'s style props.
+## Why?
 
-## Deploy your own
+[http-server](https://github.com/http-party/http-server) already exists, but I needed an application that was mobile friendly, easy to copy links and fast.
 
-Deploy the example using [Vercel](https://vercel.com?utm_source=github&utm_medium=readme&utm_campaign=next-example):
+File Numerus is simple on purpose. That doesn't mean it can't be extended.
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/git/external?repository-url=https://github.com/vercel/next.js/tree/canary/examples/with-chakra-ui-typescript&project-name=with-chakra-ui-typescript&repository-name=with-chakra-ui-typescript)
+There may be more features in the future.
 
-## How to use
+But at its core. It's meant to be an HTTP directory listing. No uploads. No folder creation. No modifications of any files or folders.
 
-### Using `create-next-app`
+Need more? Check out [filebrowser](https://filebrowser.org/features).
 
-Execute [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app) with [npm](https://docs.npmjs.com/cli/init) or [Yarn](https://yarnpkg.com/lang/en/docs/cli/create/) to bootstrap the example:
+## Install
 
-```bash
-npx create-next-app --example with-chakra-ui-typescript with-chakra-ui-typescript-app
-# or
-yarn create next-app --example with-chakra-ui-typescript with-chakra-ui-typescript-app
+npm
+
+```
+npm install -g file-numerus
 ```
 
-Deploy it to the cloud with [Vercel](https://vercel.com/new?utm_source=github&utm_medium=readme&utm_campaign=next-example) ([Documentation](https://nextjs.org/docs/deployment)).
+release
+
+> See the releases page for packaged binaries
+
+## Usage
+
+Quick start
+
+```
+file-numerus --dir ~/myfolder
+```
+
+http://localhost:8081 by default
+
+Arguments
+
+```
+$ file-numerus --help
+Options:
+      --help              Show help                                    [boolean]
+      --version           Show version number                          [boolean]
+      --directory, --dir                                 [string] [default: "."]
+  -h, --host                                       [string] [default: "0.0.0.0"]
+  -p, --port                                            [number] [default: 8081]
+  -v, --verbose                                       [boolean] [default: false]
+  -q, --quiet                                         [boolean] [default: false]
+      --dev                                           [boolean] [default: false]
+```
+
+## Develop
+
+Developed with [Typescript](https://www.typescriptlang.org/), [Next.js](https://nextjs.org/) and [Chakra](https://github.com/chakra-ui/chakra-ui).
+
+Clone
+
+```
+git clone git@github.com:hekar/file-numerus.git
+```
+
+Run development server
+
+```
+yarn install
+node ./server.js --dev --dir ~/myfolder
+```
+
+Tests
+
+```
+yarn test
+```
+
+## License
+
+[MIT](./LICENSE.md)
+
+## Acknowledgements
+
+Based on Next.js and the [Typescript Chakra UI example.](https://github.com/vercel/next.js/tree/canary/examples/with-chakra-ui-typescript)
+
+To create your own project
+
+```
+yarn create next-app --example with-chakra-ui-typescript my-app
+```
