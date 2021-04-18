@@ -1,5 +1,10 @@
 # File Numerus
 
+![GitHub Workflow Status](https://img.shields.io/github/workflow/status/hekar/file-numerus/npm%20package%20and%20release)
+[![npm-version](https://badgen.net/npm/v/file-numerus)](https://www.npmjs.com/package/file-numerus)
+[![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
+[![license](https://badgen.net/npm/license/file-numerus)](./LICENSE.md)
+
 File Numerus. Simple. Read-only. HTTP file browser.
 
 The good 'old days of listing file directories for download. Easy to use. Responsive. Made for modern browsers.
