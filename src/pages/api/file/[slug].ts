@@ -2,10 +2,12 @@ import fs from "fs";
 import path from "path";
 import { NextApiRequest, NextApiResponse } from "next";
 import getConfig from "next/config";
+import { FileService, LocalFileService } from "src/service/file-service";
 
 const { serverRuntimeConfig } = getConfig();
 const { directory } = serverRuntimeConfig;
-const root = directory;
+
+const fileService: FileService = new LocalFileService(directory)
 
 export default async function file(
   req: NextApiRequest,
@@ -19,37 +21,8 @@ export default async function file(
   const slug: string = Array.isArray(req.query.slug)
     ? req.query.slug[0]
     : req.query.slug;
-  const removeFirstSlash = slug.replace(/^\/?/, "");
-  const resolved = path.normalize(path.resolve(root, removeFirstSlash));
-  if (!path.isAbsolute(resolved)) {
-    res.status(500).json({ message: "failure to create absolute path" });
-    return;
-  }
 
-  if (!resolved.startsWith(root)) {
-    res.status(500).json({
-      message: "trying to access a folder outside your file browser folder?",
-    });
-    return;
-  }
-
-  let resolvedStats: fs.Stats | undefined;
-  try {
-    resolvedStats = await fs.promises.lstat(resolved);
-  } catch (err) {
-    console.error({ err });
-  }
-  if (!resolvedStats) {
-    res.status(404).json({
-      message: "cannot find file",
-    });
-    return;
-  } else if (resolvedStats.isSymbolicLink()) {
-    res.status(500).json({
-      message: "cannot access symbolic links",
-    });
-    return;
-  } else if (resolvedStats.isFile()) {
+  if (resolvedStats.isFile()) {
     const filename = path.basename(resolved);
     const rangeHeader = req.headers.range;
     if (rangeHeader) {
