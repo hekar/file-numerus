@@ -25,7 +25,7 @@ console.log("Starting with directory", directory);
 const app = next({
   dev: argv.dev,
   quiet: argv.quiet,
-  dir: ".",
+  dir: __dirname,
   conf: Object.assign(conf, {
     serverRuntimeConfig: {
       directory,
