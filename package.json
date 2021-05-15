@@ -1,6 +1,6 @@
 {
   "name": "file-numerus",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "bin": {
     "file-numerus": "bin/file-numerus"
   },
