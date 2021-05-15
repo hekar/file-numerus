@@ -25,7 +25,7 @@ import FileListStats from "../components/FileListStats";
 
 export type IndexWithSlugProps = {
   slug: string;
-  initialData?: AxiosResponse<DirApiResponse> | undefined;
+  initialData?: DirApiResponse | undefined;
 };
 
 export const getServerSideProps: GetServerSideProps = async (
@@ -67,9 +67,6 @@ const IndexWithSlug = ({ slug, initialData }: IndexWithSlugProps) => {
     },
     {
       initialData,
-      registerOnFocus: false,
-      refreshWhenOffline: false,
-      refreshWhenHidden: false,
     }
   );
 
