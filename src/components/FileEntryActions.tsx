@@ -11,7 +11,10 @@ export type FileEntryActionsProps = {
 export default function FileEntryActions({
   entry,
 }: FileEntryActionsProps): JSX.Element {
-  const url = new URL(entry.href, window.location.href);
+  const url = process.browser
+    ? new URL(entry.href, window.location.href)
+    : entry.href;
+
   if (entry.name === "." || entry.name === "..") {
     return <Box width="2.5rem"></Box>;
   } else if (entry.isDir) {

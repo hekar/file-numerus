@@ -1,9 +1,9 @@
+import Link from "next/link";
 import { Breadcrumb as BreadcrumbModel } from "../model/breadcrumb";
 import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
-  BreadcrumbSeparator,
   useMediaQuery,
 } from "@chakra-ui/react";
 
@@ -20,17 +20,17 @@ export default function BreadcrumbList({
         (breadcrumb): JSX.Element => {
           return (
             <BreadcrumbItem key={breadcrumb.href}>
-              <BreadcrumbLink
-                href={breadcrumb.href}
-                overflowX="hidden"
-                whiteSpace="nowrap"
-                maxWidth={isLargerThan720 ? "70vw" : "45vw"}
-                wordBreak="break-all"
-                textOverflow="ellipsis"
-              >
-                {breadcrumb.name}
-              </BreadcrumbLink>
-              <BreadcrumbSeparator />
+              <Link href={breadcrumb.href} passHref>
+                <BreadcrumbLink
+                  overflowX="hidden"
+                  whiteSpace="nowrap"
+                  maxWidth={isLargerThan720 ? "70vw" : "45vw"}
+                  wordBreak="break-all"
+                  textOverflow="ellipsis"
+                >
+                  {breadcrumb.name}
+                </BreadcrumbLink>
+              </Link>
             </BreadcrumbItem>
           );
         }

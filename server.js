@@ -27,7 +27,7 @@ const app = next({
   dev: argv.dev,
   quiet: argv.quiet,
   dir: ".",
-  conf: Object.assign({}, conf, {
+  conf: Object.assign(conf, {
     serverRuntimeConfig: {
       directory,
     },

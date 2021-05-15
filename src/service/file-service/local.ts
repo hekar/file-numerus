@@ -1,38 +1,54 @@
-import fs from "fs"
-import path from "path"
+import fs from "fs";
+import path from "path";
+import { orderBy } from "natural-orderby";
 import { StatusError } from "src/error/status-error";
 import { FileService } from "./file-service";
-import { FileList, FileEntry } from "./types";
-import { orderBy } from "natural-orderby";
+import {
+  FileList,
+  FileEntry,
+  GetObjectResult,
+  GetObjectOptions,
+} from "./types";
+
+export type LocalFileServiceOptions = {
+  allowSymbolicLinks?: boolean;
+};
 
 export class LocalFileService implements FileService {
-  constructor(private readonly root: string) {
-  }
+  constructor(
+    private readonly root: string,
+    private readonly options: LocalFileServiceOptions = {
+      allowSymbolicLinks: false,
+    }
+  ) {}
 
-  ls(key: string): Promise<FileList> {
-    const normalized = this.normalize(key)
-    const stats = this.stats(normalized)
+  async ls(key: string): Promise<FileList> {
+    const normalized = this.normalize(key);
+    const stats = await this.stats(normalized);
 
     if (stats.isFile()) {
-      throw new StatusError(500, "this api does not access files")
+      throw new StatusError(500, "this api does not access files");
     } else if (stats.isDirectory()) {
+      if (!this.isAccessibleChild(stats)) {
+        throw new StatusError(400, "inaccessible path");
+      }
+
       const files = await fs.promises.readdir(normalized);
       const entries: Array<FileEntry> = [];
-      const parent = path.relative(this.root, normalized);
       let fileCount = 0;
       let folderCount = 0;
       for (const file of files) {
-        const absolutePath = path.normalize(path.resolve(this.root, normalized, file));
-        const relativePath = path.relative(this.root, path.join(normalized, file));
+        const absolutePath = path.normalize(
+          path.resolve(this.root, normalized, file)
+        );
+        const relativePath = path.relative(
+          this.root,
+          path.join(normalized, file)
+        );
         const name = path.basename(absolutePath);
         try {
           const fileStat = await fs.promises.lstat(absolutePath);
-          if (
-            fileStat.isFIFO() ||
-            fileStat.isSocket() ||
-            fileStat.isCharacterDevice() ||
-            fileStat.isSymbolicLink()
-          ) {
+          if (!this.isAccessibleChild(fileStat)) {
             continue;
           }
           const isDir = fileStat.isDirectory();
@@ -41,14 +57,10 @@ export class LocalFileService implements FileService {
           if (fileStat.isDirectory()) folderCount++;
 
           if (fileStat.isFile() || fileStat.isDirectory()) {
-            const href = fileStat.isDirectory()
-              ? relativePath
-              : `/api/file/${encodeURIComponent(relativePath)}`;
             entries.push({
-              parent,
-              relativePath,
-              href,
+              key: relativePath,
               name,
+              size: fileStat.size,
               isDir,
               isSymLink,
             });
@@ -64,65 +76,74 @@ export class LocalFileService implements FileService {
         ["desc", "asc"]
       );
 
-      const breadcrumbs = path
-        .relative(this.root, normalized)
-        .split("/")
-        .reduce((acc, val) => {
-          const sofar = acc.map((s) => s.name);
-          acc.push({
-            href: new Array<string>().concat(sofar).concat([val]).join("/"),
-            name: val,
-          });
-          return acc;
-        }, new Array<Breadcrumb>());
-
-      const possibleParentPath =
-        path.relative(this.root, path.dirname(normalized)) || "/";
-      const parentPath =
-        possibleParentPath !== path.dirname(this.root)
-          ? possibleParentPath
-          : undefined;
-      const currentPath = path.relative(this.root, normalized);
-
-      const responseBody: DirApiResponse = {
-        breadcrumbs,
-        parentPath,
-        path: currentPath,
-        entries: orderedEntries,
-        stats: {
-          totalCount: orderedEntries.length,
-          fileCount,
-          folderCount,
-        },
+      const fileList: FileList = {
+        key,
+        name: path.basename(key),
+        isSymLink: stats.isSymbolicLink(),
+        isDir: stats.isDirectory(),
+        size: stats.size,
+        fileCount,
+        folderCount,
+        totalCount: orderedEntries.length,
+        children: orderedEntries,
       };
-      orderedEntries.unshift({
-        parent: path.dirname(path.dirname(parent)),
-        relativePath: path.dirname("parent"),
-        href: path.dirname("parent"),
-        name: "..",
-        isDir: true,
-        isSymLink: false,
-      });
-      orderedEntries.unshift({
-        parent: path.dirname(parent),
-        relativePath: parent,
-        href: parent,
-        name: ".",
-        isDir: true,
-        isSymLink: false,
-      });
+
+      return fileList;
+    } else {
+      throw new StatusError(500, "not a directory");
     }
-
-    return responseBody
   }
 
-  getEntry(key: string): Promise<FileEntry> {
+  async getEntry(key: string): Promise<FileEntry> {
+    const normalized = this.normalize(key);
+    const stats = await this.stats(normalized);
+
+    if (stats.isDirectory()) {
+      throw new StatusError(500, "this api does not access directories");
+    } else if (stats.isFile()) {
+      if (!this.isAccessibleChild(stats) || !stats.isFile()) {
+        throw new StatusError(403, "inaccessible path");
+      }
+
+      const fileEntry: FileEntry = {
+        key,
+        name: path.basename(key),
+        isSymLink: stats.isSymbolicLink(),
+        isDir: stats.isDirectory(),
+        size: stats.size,
+      };
+
+      return fileEntry;
+    } else {
+      throw new StatusError(500, "not a directory");
+    }
   }
 
-  getObject(key: string): Promise<ReadableStream<any>> {
+  async getObject(
+    key: string,
+    options?: GetObjectOptions
+  ): Promise<GetObjectResult> {
+    const entry = await this.getEntry(key);
+    const resolvedStats = await this.stats(key);
+    const size = resolvedStats.size;
+    if (
+      this.isAccessibleChild(resolvedStats) &&
+      resolvedStats.isFile() &&
+      resolvedStats.mode & 0o400
+    ) {
+      const readStream = fs.createReadStream(entry.key, {
+        start: options?.start,
+      });
+      return {
+        readStream,
+        size,
+      };
+    } else {
+      throw new StatusError(404, "file not found");
+    }
   }
 
-  private stats(key: string): fs.Stats {
+  private async stats(key: string): Promise<fs.Stats> {
     let resolvedStats: fs.Stats | undefined;
     try {
       resolvedStats = await fs.promises.lstat(key);
@@ -130,11 +151,11 @@ export class LocalFileService implements FileService {
       console.error({ err });
     }
     if (!resolvedStats) {
-      throw new StatusError(404, "cannot find file")
+      throw new StatusError(404, "cannot find file");
     } else if (resolvedStats.isSymbolicLink()) {
-      throw new StatusError(500, "cannot access symbolic links")
+      throw new StatusError(500, "cannot access symbolic links");
     }
-    return resolvedStats
+    return resolvedStats;
   }
 
   private normalize(key: string): string {
@@ -145,9 +166,22 @@ export class LocalFileService implements FileService {
     }
 
     if (!resolved.startsWith(this.root)) {
-      throw new StatusError(400, "trying to access a folder outside your file browser folder?"),
+      throw new StatusError(
+        400,
+        "trying to access a folder outside your file browser folder?"
+      );
     }
 
-    return resolved
+    return resolved;
+  }
+
+  private isAccessibleChild(fileStat: fs.Stats) {
+    const isAlwaysDenied =
+      fileStat.isFIFO() || fileStat.isSocket() || fileStat.isCharacterDevice();
+    if (this.options.allowSymbolicLinks) {
+      return !isAlwaysDenied;
+    } else {
+      return !isAlwaysDenied && !fileStat.isSymbolicLink();
+    }
   }
 }

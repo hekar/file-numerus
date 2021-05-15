@@ -25,6 +25,7 @@ import FileListStats from "../components/FileListStats";
 
 export type IndexWithSlugProps = {
   slug: string;
+  initialData?: AxiosResponse<DirApiResponse> | undefined;
 };
 
 export const getServerSideProps: GetServerSideProps = async (
@@ -34,22 +35,45 @@ export const getServerSideProps: GetServerSideProps = async (
     (Array.isArray(context.params?.slug)
       ? context.params?.slug.join("/")
       : context.params?.slug) ?? "/";
-  return {
-    props: {
-      slug,
-    },
-  };
+  try {
+    const socket = context.req.socket;
+    const address = `http://${socket.localAddress}:${socket.localPort}`;
+    const response: AxiosResponse<DirApiResponse> = await axios.get(
+      `${address}/api/dir/${encodeURIComponent(slug)}`
+    );
+    return {
+      props: {
+        slug,
+        initialData: response.data,
+      },
+    };
+  } catch (err) {
+    return {
+      props: {
+        slug,
+      },
+    };
+  }
 };
 
-const IndexWithSlug = ({ slug }: { slug: string }) => {
-  const { data } = useSWR(slug, async () => {
-    const response: AxiosResponse<DirApiResponse> = await axios.get(
-      `/api/dir/${encodeURIComponent(slug)}`
-    );
-    return response;
-  });
+const IndexWithSlug = ({ slug, initialData }: IndexWithSlugProps) => {
+  const { data } = useSWR(
+    slug,
+    async () => {
+      const response: AxiosResponse<DirApiResponse> = await axios.get(
+        `/api/dir/${encodeURIComponent(slug)}`
+      );
+      return response.data;
+    },
+    {
+      initialData,
+      registerOnFocus: false,
+      refreshWhenOffline: false,
+      refreshWhenHidden: false,
+    }
+  );
 
-  const fileEntries = data?.data.entries.map((entry: FileEntry) => (
+  const fileEntries = data?.entries.map((entry: FileEntry) => (
     <FileEntryItem entry={entry} />
   ));
 
@@ -68,7 +92,7 @@ const IndexWithSlug = ({ slug }: { slug: string }) => {
             wrap="wrap"
           >
             {data ? (
-              <Link href={data.data.parentPath ?? ""} passHref>
+              <Link href={data.parentPath ?? ""} passHref>
                 <IconButton
                   display="inline-block"
                   marginRight="16px"
@@ -78,10 +102,10 @@ const IndexWithSlug = ({ slug }: { slug: string }) => {
               </Link>
             ) : undefined}
             {data ? (
-              <BreadcrumbList breadcrumbs={data.data.breadcrumbs} />
+              <BreadcrumbList breadcrumbs={data.breadcrumbs} />
             ) : undefined}
           </Stack>
-          {data ? <FileListStats stats={data?.data.stats} /> : undefined}
+          {data ? <FileListStats stats={data.stats} /> : undefined}
         </Box>
         <Box>
           <List>{fileEntries}</List>
