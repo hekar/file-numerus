@@ -48,6 +48,6 @@ export class Breadcrumbs {
         return acc;
       }, new Array<Breadcrumb>());
 
-    return [{ href: "/", name: "H" }].concat(breadcrumbs);
+    return [{ href: "/", name: "-" }].concat(breadcrumbs);
   }
 }

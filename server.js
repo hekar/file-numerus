@@ -4,7 +4,6 @@ const { parse } = require("url");
 const next = require("next");
 const yargs = require("yargs/yargs");
 const conf = require("./next.config");
-const { assignRef } = require("@chakra-ui/hooks");
 
 const argv = yargs(process.argv.slice(2))
   .env("FILE_NUMERUS")
