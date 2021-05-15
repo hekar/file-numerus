@@ -5,6 +5,7 @@ import {
   GetServerSidePropsResult,
 } from "next";
 import Link from "next/link";
+import Head from "next/head";
 import axios, { AxiosResponse } from "axios";
 import useSWR from "swr";
 import {
@@ -75,41 +76,46 @@ const IndexWithSlug = ({ slug, initialData }: IndexWithSlugProps) => {
   ));
 
   return (
-    <Container height="100vh" maxW="container.xl" padding="40px">
-      <Grid
-        templateColumns="repeat(1, 2fr)"
-        templateRows="max-content 1fr"
-        gap={6}
-      >
-        <Box>
-          <Stack
-            direction="row"
-            alignContent="center"
-            alignItems="center"
-            wrap="wrap"
-          >
-            {data ? (
-              <Link href={data.parentPath ?? ""} passHref>
-                <IconButton
-                  display="inline-block"
-                  marginRight="16px"
-                  aria-label="Back"
-                  icon={<ArrowBackIcon />}
-                />
-              </Link>
-            ) : undefined}
-            {data ? (
-              <BreadcrumbList breadcrumbs={data.breadcrumbs} />
-            ) : undefined}
-          </Stack>
-          {data ? <FileListStats stats={data.stats} /> : undefined}
-        </Box>
-        <Box>
-          <List>{fileEntries}</List>
-        </Box>
-        <DarkModeSwitch />
-      </Grid>
-    </Container>
+    <>
+      <Head>
+        <title>- {slug}</title>
+      </Head>
+      <Container height="100vh" maxW="container.xl" padding="40px">
+        <Grid
+          templateColumns="repeat(1, 2fr)"
+          templateRows="max-content 1fr"
+          gap={6}
+        >
+          <Box>
+            <Stack
+              direction="row"
+              alignContent="center"
+              alignItems="center"
+              wrap="wrap"
+            >
+              {data ? (
+                <Link href={data.parentPath ?? ""} passHref>
+                  <IconButton
+                    display="inline-block"
+                    marginRight="16px"
+                    aria-label="Back"
+                    icon={<ArrowBackIcon />}
+                  />
+                </Link>
+              ) : undefined}
+              {data ? (
+                <BreadcrumbList breadcrumbs={data.breadcrumbs} />
+              ) : undefined}
+            </Stack>
+            {data ? <FileListStats stats={data.stats} /> : undefined}
+          </Box>
+          <Box>
+            <List>{fileEntries}</List>
+          </Box>
+          <DarkModeSwitch />
+        </Grid>
+      </Container>
+    </>
   );
 };
 
