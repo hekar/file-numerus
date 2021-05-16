@@ -27,13 +27,12 @@ export default async function slug(
 
   try {
     const slug: string = new QueryParam(req.query.slug).first();
-    const fileList = await fileService.ls(slug);
     const breadcrumbs = new Breadcrumbs(root, slug);
-    const currentPath = breadcrumbs.normalizedPath();
+    const currentPath = breadcrumbs.normalizedKey;
+    const fileList = await fileService.ls(currentPath);
     const entries = fileList.children.map((e) => {
-      const relativePath = path
-        .join(currentPath, e.name)
-        .replace(path.sep, "/");
+      const relativePath = new Breadcrumbs(root, path.join(currentPath, e.name))
+        .normalizedKey;
       const entry: FileEntry = {
         parent: currentPath,
         relativePath,
@@ -57,22 +56,6 @@ export default async function slug(
       },
     };
     res.json(responseBody);
-    // orderedEntries.unshift({
-    //   parent: path.dirname(path.dirname(parent)),
-    //   relativePath: path.dirname("parent"),
-    //   href: path.dirname("parent"),
-    //   name: "..",
-    //   isDir: true,
-    //   isSymLink: false,
-    // });
-    // orderedEntries.unshift({
-    //   parent: path.dirname(parent),
-    //   relativePath: parent,
-    //   href: parent,
-    //   name: ".",
-    //   isDir: true,
-    //   isSymLink: false,
-    // });
   } catch (err) {
     handleStatusError(res, err);
   }

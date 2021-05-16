@@ -172,6 +172,14 @@ export class LocalFileService implements FileService {
       );
     }
 
+    const relativePath = path.relative(this.root, key);
+    const isRelative =
+      !relativePath.startsWith("..") && !path.isAbsolute(relativePath);
+
+    if (!isRelative) {
+      throw new StatusError(400, "outside of relative path");
+    }
+
     return resolved;
   }
 
