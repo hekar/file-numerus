@@ -123,15 +123,15 @@ export class LocalFileService implements FileService {
     key: string,
     options?: GetObjectOptions
   ): Promise<GetObjectResult> {
-    const entry = await this.getEntry(key);
-    const resolvedStats = await this.stats(key);
+    const normalized = this.normalize(key);
+    const resolvedStats = await this.stats(normalized);
     const size = resolvedStats.size;
     if (
       this.isAccessibleChild(resolvedStats) &&
       resolvedStats.isFile() &&
       resolvedStats.mode & 0o400
     ) {
-      const readStream = fs.createReadStream(entry.key, {
+      const readStream = fs.createReadStream(normalized, {
         start: options?.start,
       });
       return {
