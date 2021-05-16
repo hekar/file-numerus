@@ -27,11 +27,11 @@ export default async function slug(
 
   try {
     const slug: string = new QueryParam(req.query.slug).first();
-    const breadcrumbs = new Breadcrumbs(root, slug);
+    const breadcrumbs = new Breadcrumbs(slug);
     const currentPath = breadcrumbs.normalizedKey;
     const fileList = await fileService.ls(currentPath);
     const entries = fileList.children.map((e) => {
-      const relativePath = new Breadcrumbs(root, path.join(currentPath, e.name))
+      const relativePath = new Breadcrumbs(path.join(currentPath, e.name))
         .normalizedKey;
       const entry: FileEntry = {
         parent: currentPath,

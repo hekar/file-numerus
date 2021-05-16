@@ -3,7 +3,7 @@ import { Breadcrumb } from "./breadcrumb";
 
 export class Breadcrumbs {
   private readonly key: string;
-  constructor(private readonly root: string, key: string) {
+  constructor(key: string) {
     // Always remove the first slash
     this.key = this.replaceSep(path.normalize(key)).replace(/^\/?/, "");
   }

@@ -1,24 +1,16 @@
 import path from "path";
 import { Breadcrumbs } from "src/model/breadcrumbs";
 
-const exampleRootFolder = "/my-root/folder";
-
 describe("breadcrumbs", () => {
   describe("#name", () => {
     it("should give the name of the file", () => {
-      const breadcrumbs = new Breadcrumbs(
-        exampleRootFolder,
-        "my/.././path/to/file/./"
-      );
+      const breadcrumbs = new Breadcrumbs("my/.././path/to/file/./");
       const actual = breadcrumbs.name();
       expect(actual).toEqual("file");
     });
 
     it("should handle / prefix in path", () => {
-      const breadcrumbs = new Breadcrumbs(
-        exampleRootFolder,
-        "/my/path/to/file"
-      );
+      const breadcrumbs = new Breadcrumbs("/my/path/to/file");
       const actual = breadcrumbs.name();
       expect(actual).toEqual("file");
     });
@@ -26,19 +18,13 @@ describe("breadcrumbs", () => {
 
   describe("#normalizedKey", () => {
     it("should handle / prefix in path", () => {
-      const breadcrumbs = new Breadcrumbs(
-        exampleRootFolder,
-        "/my/path/to/file"
-      );
+      const breadcrumbs = new Breadcrumbs("/my/path/to/file");
       const actual = breadcrumbs.normalizedKey;
       expect(actual).toEqual("my/path/to/file");
     });
 
     it("should normalize key", () => {
-      const breadcrumbs = new Breadcrumbs(
-        exampleRootFolder,
-        "/my/path/to/../.././file"
-      );
+      const breadcrumbs = new Breadcrumbs("/my/path/to/../.././file");
       const actual = breadcrumbs.normalizedKey;
       expect(actual).toEqual("my/file");
     });
@@ -47,7 +33,7 @@ describe("breadcrumbs", () => {
   describe("#parent", () => {
     it("should return correct parent", () => {
       const key = "my/path/to/file";
-      const breadcrumbs = new Breadcrumbs(exampleRootFolder, key);
+      const breadcrumbs = new Breadcrumbs(key);
       const actual = breadcrumbs.parent();
       expect(actual).toEqual(path.dirname(key));
     });
@@ -56,7 +42,7 @@ describe("breadcrumbs", () => {
   describe("#toArray()", () => {
     it("should return correct entries", () => {
       const key = "my/path/to/file";
-      const breadcrumbs = new Breadcrumbs(exampleRootFolder, key);
+      const breadcrumbs = new Breadcrumbs(key);
       const actual = breadcrumbs.toArray();
       expect(actual).toEqual([
         {
